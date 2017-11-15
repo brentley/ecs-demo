@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!-- saved from url=(0030)https://daysuntilreinvent.com/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="tweet the number of days until reinvent">
+    <meta name="author" content="Randall Hunt">
+    <!-- Bootstrap Core CSS -->
+    <link href="./days_until_re_invent_files/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="./days_until_re_invent_files/stylish-portfolio.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="./days_until_re_invent_files/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="./days_until_re_invent_files/css" rel="stylesheet" type="text/css">
+
+    <title>Days Until re:Invent</title>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<script type="text/javascript" charset="utf-8" async="" src="./days_until_re_invent_files/tweet.cb78034bf84bcea3216bfbe66def8a51.js"></script></head>
+<body style="">
+<header id="top" class="header">
+  <div class="text-vertical-center">
+    <h1><span id="daysuntilHeader">11</span> Days Until re:Play!</h1>
+    
+    <br>
+    
+    <br>
+    
+    
+    
+    
+    
+    
+  </div>
+</header>
+<footer>
+<p>© 2017, Amazon Web Services, Inc. or its affiliates. All rights reserved.</p>
+</footer>
+
+<script src="./days_until_re_invent_files/aws-sdk-2.6.7.min.js"></script>
+<script src="./days_until_re_invent_files/js.cookie.js"></script>
+<script src="./days_until_re_invent_files/jquery.js"></script>
+<script src="./days_until_re_invent_files/bootstrap.min.js"></script>
+<script>
+$(document).ready(function() {
+  var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+  var reinvent = new Date(2017,10,30); // actually november holy shit js is dumb
+  var today = new Date();
+  var diffDays = Math.round((reinvent.getTime() - today.getTime())/(oneDay));
+  $("#daysuntilHeader").text(diffDays);
+
+  function getUrlParameters(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  var api_url = "https://ctgofp09m8.execute-api.us-east-1.amazonaws.com/dev";
+
+  $('#login-button').click(function(e) {
+    e.preventDefault();
+    login();
+  });
+  $('#logout-button').click(function(e) {
+    e.preventDefault();
+    logout();
+  })
+
+  var screen_name = Cookies.get('screen_name')
+  var profile_image = Cookies.get('profile_image')
+
+  if (screen_name) {
+    $('#logout-button').show();
+    $('#login-button').hide();
+    $('.nickname').text(screen_name);
+    $('.avatar').attr("src", profile_image).show();
+  }
+
+  function login() {
+    $.get(api_url+"/login", function(data, status) {
+      if (status == "success") {
+        window.location = "https://api.twitter.com/oauth/authenticate?oauth_token="+data.oauth_token
+      } else {
+        console.log(data, status);
+      }
+    });
+  }
+
+  function logout() {
+    screen_name = Cookies.get('screen_name')
+    $.post(api_url+"/logout", {'screen_name': screen_name}, function(data, status) {
+      if (status == "success") {
+        Cookies.remove('screen_name', {"domain": "daysuntilreinvent.com"});
+        Cookies.remove('profile_image', {"domain": "daysuntilreinvent.com"});
+        window.location = "https://www.daysuntilreinvent.com/";
+      }
+    });
+  }
+
+  if (location.search && !Cookies.get('screen_name')) {
+    console.log("posting credentials!");
+    Cookies.set(
+      'oauth_verifier',
+      getUrlParameters("oauth_verifier"),
+      {"domain": "daysuntilreinvent.com"}
+    );
+    $.post(
+      api_url+"/access_token", {
+        'oauth_token': getUrlParameters('oauth_token'),
+        'oauth_verifier': Cookies.get('oauth_verifier')
+    }, function(resp) {
+      console.log("storing credentials");
+      Cookies.set('screen_name', resp.screen_name, {"domain": "daysuntilreinvent.com"});
+      Cookies.set('profile_image', resp.profile_image_url_https, {"domain": "daysuntilreinvent.com"});
+      window.location = "https://www.daysuntilreinvent.com/";
+    });
+  }
+});
+</script>
+
+
+<iframe id="rufous-sandbox" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;" title="Twitter analytics iframe" src="./days_until_re_invent_files/saved_resource.html"></iframe></body></html>
